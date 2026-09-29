@@ -13,6 +13,11 @@ Unity 6000.3.24f1, URP 2D, new Input System only. Flow: Connect → Lobby (host 
 - The Relay SDK is in `com.unity.services.multiplayer`. The standalone `com.unity.services.relay` is deprecated.
 - Editor and dev builds sign in with a random auth profile so several local copies count as different players.
 - NGO gotcha: `OnLoadEventCompleted` can fire before `Start()` in the new scene, so subscribe in `Awake()`.
+- Keep `NetworkRigidbody2D.UseRigidBodyForMotion` **off**. In NGO 2.13.3 its 2D path breaks remote rotation
+  (`InternalMoveRotation2D` uses `quaternion.z` as degrees).
+- Browsers pause hidden tabs, so a web client can stall mid-scene-load. `LoadSceneTimeOut` is 15 s, and
+  `PlayerSpawner` spawns stragglers on their late `OnLoadComplete`.
+- Remote balls are kinematic locally (owner authority), so players can't push each other.
 - For package APIs, read `Library/PackageCache/<pkg>@<hash>/` instead of guessing.
 
 ## Unity CLI (`unity`) — use this; the Editor is usually open, so batchmode is blocked
@@ -24,4 +29,8 @@ Unity 6000.3.24f1, URP 2D, new Input System only. Flow: Connect → Lobby (host 
   `AssetDatabase.DeleteAsset("Assets/Temp")`.
 - Simulated keys (`InputSystem.QueueStateEvent`) only work after `editor_focus`. Release them with an empty `KeyboardState()`.
 - Smoke test: `editor_play` → invoke the `Host Game` button → reach Game alone by reflecting `LobbyController.ChooseSaveSlot(int)`.
-  Delete the save it writes in `AppData/LocalLow/DefaultCompany/we-ball/`. A two-player test needs Multiplayer Play Mode (user toggles it).
+  Delete the save it writes in `AppData/LocalLow/DefaultCompany/we-ball/`.
+- Two-player test without Multiplayer Play Mode: `unity command build --target StandaloneWindows64 --outputPath Builds/WinTest/we-ball.exe
+  --options '["Development"]' --confirm true`, then launch it with `-join CODE -logFile <path>` (dev builds only).
+  Building switches the active target, so switch back to WebGL afterward. It opens windows on the user's desktop,
+  so ask first, and never screen-capture the desktop.

@@ -46,6 +46,9 @@ namespace WeBall.Networking
             Instance = this;
             networkManager = GetComponent<NetworkManager>();
             GetComponent<UnityTransport>().UseWebSockets = true;
+            // Don't make everyone wait long for a player whose game is paused (e.g. a background browser tab);
+            // PlayerSpawner still gives them a ball whenever they finish loading.
+            networkManager.NetworkConfig.LoadSceneTimeOut = 15;
             networkManager.OnClientStopped += HandleClientStopped;
             Application.quitting += () => quitting = true;
         }

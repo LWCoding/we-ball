@@ -208,7 +208,9 @@ namespace WeBall.Editor
             networkTransform.SyncRotAngleX = false;
             networkTransform.SyncRotAngleY = false;
             networkTransform.SyncScaleX = networkTransform.SyncScaleY = networkTransform.SyncScaleZ = false;
-            go.AddComponent<NetworkRigidbody2D>().UseRigidBodyForMotion = true;
+            // UseRigidBodyForMotion stays off: in NGO 2.13.3 its 2D rotation path applies the quaternion's z
+            // component as degrees, so remote balls never visibly rotate.
+            go.AddComponent<NetworkRigidbody2D>().UseRigidBodyForMotion = false;
             go.AddComponent<BallController>();
 
             GameObject prefab = PrefabUtility.SaveAsPrefabAsset(go, $"{PrefabsFolder}/Player.prefab");

@@ -27,7 +27,21 @@ namespace WeBall.UI
 
             ConnectionManager.Instance.ConnectionFailed += ShowFailure;
             SetBusy(false, ConnectionManager.LastDisconnectMessage);
+
+#if DEVELOPMENT_BUILD && !UNITY_EDITOR
+            // Testing shortcut: launch a development build with "-join CODE" to join automatically (once).
+            string[] args = Environment.GetCommandLineArgs();
+            int index = Array.IndexOf(args, "-join");
+            if (!usedJoinArgument && index >= 0 && index + 1 < args.Length)
+            {
+                usedJoinArgument = true;
+                joinCodeInput.text = args[index + 1];
+                Join();
+            }
+#endif
         }
+
+        static bool usedJoinArgument;
 
         void OnDestroy()
         {

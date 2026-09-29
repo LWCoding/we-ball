@@ -62,7 +62,9 @@ namespace WeBall.Lobby
         void Update()
         {
             // Only sends over the network when the count actually changes.
-            if (IsServer) playerCount.Value = NetworkManager.ConnectedClientsIds.Count;
+            // The NetworkManager can be gone for a frame while leaving the session.
+            if (IsServer && NetworkManager != null && NetworkManager.IsListening)
+                playerCount.Value = NetworkManager.ConnectedClientsIds.Count;
         }
 
         void ChooseSaveSlot(int slot)

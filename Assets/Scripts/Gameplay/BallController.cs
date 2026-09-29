@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using WeBall.UI;
 
 namespace WeBall.Gameplay
 {
@@ -69,6 +70,12 @@ namespace WeBall.Gameplay
         void Update()
         {
             if (!IsSpawned || !IsOwner) return;
+
+            if (PauseMenu.IsOpen)
+            {
+                moveInput = 0f;
+                return;
+            }
 
             moveInput = moveAction.ReadValue<float>();
             if (hopAction.WasPressedThisFrame()) hopQueued = true;

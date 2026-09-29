@@ -5,8 +5,11 @@ Unity 6000.3.24f1, URP 2D, new Input System only. Flow: Connect → Lobby (host 
 
 ## Non-obvious decisions
 
-- **Scenes and Player.prefab are generated** by `WeBall.Editor.ProjectSetup.Generate()` (*Tools > We Ball*). Re-running
-  overwrites them. After the user hand-edits scenes, edit the scenes directly instead of re-running.
+- **Never generate GameObjects from code** (no generator scripts, no runtime-built UI or levels). Put objects directly
+  in scenes. **Prefabs only for things spawned at runtime** (currently just `Assets/Prefabs/Player.prefab`), not for
+  one-off scene objects like cameras, menus, or level blocks.
+  For editor edits via the CLI, use `run_script` (a static class in a .cs file). `eval` doesn't support `using` directives.
+- `Lobby Menu` (Lobby scene) is an in-scene NetworkObject. After changing it, re-save the Lobby scene so its `GlobalObjectIdHash` stays valid.
 - **Relay uses `wss` + `UseWebSockets` on all platforms**, so WebGL (itch.io) works and web and desktop players can mix. Don't switch to dtls/udp.
 - Player movement is **owner-authoritative** (`NetworkTransform.AuthorityMode = Owner`). It's simple, but not cheat-proof.
 - `NetworkConfig.PlayerPrefab` is null on purpose. `PlayerSpawner` spawns balls only in the Game scene.

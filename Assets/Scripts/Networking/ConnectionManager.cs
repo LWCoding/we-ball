@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Linq;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -90,7 +92,27 @@ namespace WeBall.Networking
         /// <summary>Leaves the session. If this is the host, every client is disconnected too.</summary>
         public void Leave()
         {
+            if (leavingOnPurpose) return;
             leavingOnPurpose = true;
+
+            if (!networkManager.IsServer)
+            {
+                networkManager.Shutdown();
+                return;
+            }
+
+            // Tell clients why they're being dropped, then give the message a moment to send before shutting down.
+            foreach (ulong clientId in networkManager.ConnectedClientsIds.ToArray())
+            {
+                if (clientId != NetworkManager.ServerClientId)
+                    networkManager.DisconnectClient(clientId, "The host ended the game.");
+            }
+            StartCoroutine(ShutdownAfterDelay());
+        }
+
+        IEnumerator ShutdownAfterDelay()
+        {
+            yield return new WaitForSecondsRealtime(0.25f);
             networkManager.Shutdown();
         }
 
